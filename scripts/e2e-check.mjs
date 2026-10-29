@@ -1,7 +1,7 @@
 // Checks the output of `n8n execute --rawOutput` and n8n's node type list in the e2e workflow.
 // Usage:
 //   node scripts/e2e-check.mjs types <nodes.json> <workflow.json>...
-//   node scripts/e2e-check.mjs free <execution-output>
+//   node scripts/e2e-check.mjs free <n8n log file or execute stdout>
 //   node scripts/e2e-check.mjs keyed <execution-output>
 //   node scripts/e2e-check.mjs recipe <name> <execution-output>
 import assert from 'node:assert/strict';
@@ -9,13 +9,33 @@ import { readFileSync } from 'node:fs';
 
 const [mode, ...args] = process.argv.slice(2);
 
+/**
+ * `n8n execute --rawOutput` writes the run through n8n's logger, so with N8N_LOG_OUTPUT=file the
+ * result is the message of the latest log entry that holds an execution. Plain stdout output works too.
+ */
 function readExecution(path) {
 	const text = readFileSync(path, 'utf8');
-	const start = text.indexOf('{');
-	assert.ok(start >= 0, `${path}: no JSON in n8n output:\n${text.slice(0, 2000)}`);
-	const run = JSON.parse(text.slice(start));
+	let run;
+	for (const line of text.split('\n')) {
+		const candidate = parseRun(line);
+		if (candidate) run = candidate;
+	}
+	run ??= parseRun(text.slice(Math.max(0, text.indexOf('{'))));
+	assert.ok(run, `${path}: no execution result found`);
 	assert.equal(run.data.resultData.error, undefined, 'workflow failed');
 	return run.data.resultData.runData;
+}
+
+function parseRun(text) {
+	try {
+		let value = JSON.parse(text);
+		if (typeof value.message === 'string' && value.message.startsWith('{')) {
+			value = JSON.parse(value.message);
+		}
+		return value?.data?.resultData ? value : undefined;
+	} catch {
+		return undefined;
+	}
 }
 
 function items(runData, node) {

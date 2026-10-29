@@ -74,7 +74,7 @@ jobs:
         run: |
           n8n import:workflow --input="$E2E_DIR/free.workflow.json"
           n8n execute --id e2eFreeOps00001 --rawOutput > "$RUNNER_TEMP/free.out"
-          node scripts/e2e-check.mjs free "$RUNNER_TEMP/free.out"
+          node scripts/e2e-check.mjs free "$N8N_LOG_FILE_LOCATION"
 
       - name: Import every recipe
         run: |
@@ -87,7 +87,7 @@ jobs:
           for pair in url-to-markdown:rnRecipeMd00001 brand-lookup:rnRecipeBrand01 competitor-research:rnRecipeComp001; do
             name="${pair%%:*}"; id="${pair##*:}"
             n8n execute --id "$id" --rawOutput > "$RUNNER_TEMP/$name.out"
-            node scripts/e2e-check.mjs recipe "$name" "$RUNNER_TEMP/$name.out"
+            node scripts/e2e-check.mjs recipe "$name" "$N8N_LOG_FILE_LOCATION"
           done
 
       - name: Keyed operations with the test key
@@ -104,7 +104,7 @@ jobs:
           rm -f "$creds"
           n8n import:workflow --input="$E2E_DIR/keyed.workflow.json"
           n8n execute --id e2eKeyedOps0001 --rawOutput > "$RUNNER_TEMP/keyed.out"
-          node scripts/e2e-check.mjs keyed "$RUNNER_TEMP/keyed.out"
+          node scripts/e2e-check.mjs keyed "$N8N_LOG_FILE_LOCATION"
 
       - name: Show n8n logs on failure
         if: failure()
