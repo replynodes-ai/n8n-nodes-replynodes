@@ -1,0 +1,55 @@
+# Publishes to npm with a provenance statement when a GitHub release is published.
+# n8n requires provenance (GitHub Actions publishing) for verified community nodes.
+#
+# Authentication: npm trusted publishing (OIDC). On npmjs.com, add a trusted publisher for
+# this package with repository replynodes-ai/n8n-nodes-replynodes and workflow file publish.yml.
+# No NPM_TOKEN secret is needed.
+
+name: Publish
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use an npm version that supports trusted publishing
+        run: npm install -g npm@11.6.2
+
+      - name: Check the release tag matches package.json
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "Release tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint, test, build, and audit
+        run: npm run check
+
+      - name: Publish with provenance
+        # prepublishOnly (n8n-node prerelease) blocks publishing unless RELEASE_MODE is set,
+        # so manual publishes from a laptop fail and only this workflow can publish.
+        run: npm publish --provenance --access public
+        env:
+          RELEASE_MODE: 'true'
