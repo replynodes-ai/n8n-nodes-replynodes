@@ -30,6 +30,12 @@ npm run check           # everything CI runs before publishing
 End-to-end tests run inside a real n8n instance on a GitHub runner: Actions > "E2E in n8n" > Run
 workflow (`.github/workflows/e2e.yml`). It runs `tests/e2e/*.workflow.json` and the recipes, checked by
 `scripts/e2e-check.mjs`. Keyed operations run only if the `REPLYNODES_API_KEY` repository secret is set.
+
+The e2e job marks its own traffic with `X-ReplyNodes-Analytics: exclude`, which the ReplyNodes API treats
+as an opt-out from usage analytics (exactly one value, case-insensitive). The job adds the header to its
+built copy of the node in the "Load the built node" step; the published node never sends it, so real n8n
+usage stays counted through `x-replynodes-source: n8n`. Run with `skip_search` (default on) to leave out
+the Search operation while it is unavailable.
 Don't run n8n on the production server.
 
 ## Rules

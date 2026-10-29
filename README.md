@@ -149,7 +149,7 @@ Get Logo Image returns a file, which AI agents can't read. Use Get Brand or Get 
 
 ## Privacy
 
-The node only calls ReplyNodes hosts (`md.`, `brand.`, `img.`, and `api.replynodes.com`), and only when your workflow runs an operation. Each request includes an `x-replynodes-source: n8n` header and the node version, so ReplyNodes can count usage from n8n. It sends no other telemetry or identifiers.
+The node only calls ReplyNodes hosts (`md.`, `brand.`, `img.`, and `api.replynodes.com`), and only when your workflow runs an operation. Each request includes an `x-replynodes-source: n8n` header and the node version, so ReplyNodes can count usage from n8n. It sends no other telemetry or identifiers. Requests sent with an `X-ReplyNodes-Analytics: exclude` header are left out of ReplyNodes usage analytics; the node's own test runs use it.
 
 ## Development
 
