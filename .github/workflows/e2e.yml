@@ -39,12 +39,18 @@ jobs:
       - name: Install n8n
         run: npm install -g "n8n@${N8N_VERSION}" --no-fund --no-audit
 
-      - name: Load the node into n8n the way n8n-node dev does
+      - name: Load the built node into n8n as a custom node
+        # n8n registers custom-folder nodes as CUSTOM.<name>, so the test copies of the workflows
+        # use that prefix. Installed from npm, the type is @replynodes/n8n-nodes-replynodes.<name>.
         run: |
           echo "N8N_USER_FOLDER=$RUNNER_TEMP/n8n-home" >> "$GITHUB_ENV"
           echo "N8N_LOG_FILE_LOCATION=$RUNNER_TEMP/n8n.log" >> "$GITHUB_ENV"
-          mkdir -p "$RUNNER_TEMP/n8n-home/.n8n/custom/node_modules/@replynodes"
-          ln -s "$GITHUB_WORKSPACE" "$RUNNER_TEMP/n8n-home/.n8n/custom/node_modules/@replynodes/n8n-nodes-replynodes"
+          echo "E2E_DIR=$RUNNER_TEMP/workflows" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/n8n-home/.n8n/custom" "$RUNNER_TEMP/workflows"
+          ln -s "$GITHUB_WORKSPACE/dist" "$RUNNER_TEMP/n8n-home/.n8n/custom/replynodes"
+          for f in recipes/*.json tests/e2e/*.json; do
+            sed 's#@replynodes/n8n-nodes-replynodes\.#CUSTOM.#g' "$f" > "$RUNNER_TEMP/workflows/$(basename "$f")"
+          done
 
       - name: Start n8n and check the node, its AI tool variant, and recipe node versions
         run: |
@@ -60,20 +66,20 @@ jobs:
             sleep 2
           done
           if [ -z "$types" ]; then tail -50 "$RUNNER_TEMP/start.log"; exit 1; fi
-          node scripts/e2e-check.mjs types "$types" recipes/*.json tests/e2e/*.json
+          node scripts/e2e-check.mjs types "$types" "$E2E_DIR"/*.json
           kill %1 || true
           sleep 3
 
       - name: Free operations without a credential
         run: |
-          n8n import:workflow --input=tests/e2e/free.workflow.json
+          n8n import:workflow --input="$E2E_DIR/free.workflow.json"
           n8n execute --id e2eFreeOps00001 --rawOutput > "$RUNNER_TEMP/free.out"
           node scripts/e2e-check.mjs free "$RUNNER_TEMP/free.out"
 
       - name: Import every recipe
         run: |
           for file in recipes/*.json; do
-            n8n import:workflow --input="$file"
+            n8n import:workflow --input="$E2E_DIR/$(basename "$file")"
           done
 
       - name: Run the recipes that need no key or chat model
@@ -96,7 +102,7 @@ jobs:
           node -e 'require("fs").writeFileSync(process.argv[1], JSON.stringify([{ id: "e2eReplyNodesKey", name: "ReplyNodes e2e", type: "replyNodesApi", data: { apiKey: process.env.REPLYNODES_API_KEY } }]), { mode: 0o600 })' "$creds"
           n8n import:credentials --input="$creds"
           rm -f "$creds"
-          n8n import:workflow --input=tests/e2e/keyed.workflow.json
+          n8n import:workflow --input="$E2E_DIR/keyed.workflow.json"
           n8n execute --id e2eKeyedOps0001 --rawOutput > "$RUNNER_TEMP/keyed.out"
           node scripts/e2e-check.mjs keyed "$RUNNER_TEMP/keyed.out"
 

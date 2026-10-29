@@ -41,10 +41,8 @@ if (mode === 'types') {
 		const versions = Array.isArray(type.version) ? type.version : [type.version];
 		known.set(type.name, [...(known.get(type.name) ?? []), ...versions]);
 	}
-	for (const name of [
-		'@replynodes/n8n-nodes-replynodes.replyNodes',
-		'@replynodes/n8n-nodes-replynodes.replyNodesTool',
-	]) {
+	// Nodes loaded from n8n's custom folder are registered as CUSTOM.<name>.
+	for (const name of ['CUSTOM.replyNodes', 'CUSTOM.replyNodesTool']) {
 		assert.ok(known.has(name), `${name} is not registered`);
 		ok(`registered: ${name}`);
 	}
