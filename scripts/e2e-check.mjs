@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const [mode, ...args] = process.argv.slice(2);
+const skipSearch = process.env.E2E_SKIP_SEARCH === 'true';
 
 /**
  * `n8n execute --rawOutput` writes the run through n8n's logger, so with N8N_LOG_OUTPUT=file the
@@ -104,9 +105,11 @@ if (mode === 'free') {
 	assert.ok(kit.json.data, 'logo kit envelope');
 	ok('Get Logo Kit: anonymous call');
 
-	const [search] = items(run, 'Search');
-	assert.ok(Array.isArray(search.json.data.data) && search.json.data.data.length > 0);
-	ok(`Search: ${search.json.data.data.length} results anonymously`);
+	if (!skipSearch) {
+		const [search] = items(run, 'Search');
+		assert.ok(Array.isArray(search.json.data.data) && search.json.data.data.length > 0);
+		ok(`Search: ${search.json.data.data.length} results anonymously`);
+	}
 
 	const [scrape] = items(run, 'Scrape');
 	assert.equal(typeof scrape.json.data.markdown, 'string');
@@ -132,7 +135,7 @@ if (mode === 'keyed') {
 		'Crawl Site',
 		'Search With Key',
 		'Get Brand With Key Set',
-	]) {
+	].filter((node) => !(skipSearch && node === 'Search With Key'))) {
 		const [item] = items(run, node);
 		assert.equal(item.json.error, undefined, `${node}: ${item.json.error}`);
 		ok(`${node}: ${Object.keys(item.json).join(', ')}`);

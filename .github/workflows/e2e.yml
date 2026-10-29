@@ -6,6 +6,11 @@ name: E2E in n8n
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_search:
+        description: 'Skip the Search operation (and the recipe that uses it)'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -21,6 +26,7 @@ jobs:
       N8N_TEMPLATES_ENABLED: 'false'
       N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: 'true'
       N8N_LOG_OUTPUT: 'file'
+      E2E_SKIP_SEARCH: ${{ inputs.skip_search }}
 
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +57,20 @@ jobs:
           for f in recipes/*.json tests/e2e/*.json; do
             sed 's#@replynodes/n8n-nodes-replynodes\.#CUSTOM.#g' "$f" > "$RUNNER_TEMP/workflows/$(basename "$f")"
           done
+          # Mark this job's traffic as test traffic so it stays out of usage analytics. Only the
+          # built copy loaded here gets the header; the published node never sends it.
+          for f in dist/nodes/ReplyNodes/request.js dist/credentials/ReplyNodesApi.credentials.js; do
+            sed -i "s#^\( *\)\(\[[a-z_0-9.]*SOURCE_VERSION_HEADER\]: .*NODE_PACKAGE_VERSION,\)\$#\1\2\n\1'x-replynodes-analytics': 'exclude',#" "$f"
+            test "$(grep -c "x-replynodes-analytics" "$f")" = 1
+          done
+          if [ "$E2E_SKIP_SEARCH" = "true" ]; then
+            for name in free keyed; do
+              file="$RUNNER_TEMP/workflows/$name.workflow.json"
+              jq '.nodes |= map(select(.parameters.operation != "search"))
+                | .connections.Start.main[0] |= map(select(.node != "Search" and .node != "Search With Key"))' "$file" > "$file.tmp"
+              mv "$file.tmp" "$file"
+            done
+          fi
 
       - name: Start n8n and check the node, its AI tool variant, and recipe node versions
         run: |
@@ -86,11 +106,16 @@ jobs:
         run: |
           for pair in url-to-markdown:rnRecipeMd00001 brand-lookup:rnRecipeBrand01 competitor-research:rnRecipeComp001; do
             name="${pair%%:*}"; id="${pair##*:}"
+            if [ "$name" = competitor-research ] && [ "$E2E_SKIP_SEARCH" = "true" ]; then
+              echo "::notice::competitor-research skipped (it starts with Search)"
+              continue
+            fi
             n8n execute --id "$id" --rawOutput > "$RUNNER_TEMP/$name.out"
             node scripts/e2e-check.mjs recipe "$name" "$N8N_LOG_FILE_LOCATION"
           done
 
       - name: Keyed operations with the test key
+        if: ${{ !cancelled() }}
         env:
           REPLYNODES_API_KEY: ${{ secrets.REPLYNODES_API_KEY }}
         run: |
