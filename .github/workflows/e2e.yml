@@ -1,0 +1,107 @@
+# Runs the node inside a real n8n instance on a GitHub-hosted runner.
+# Manual only: it calls the live ReplyNodes endpoints and uses free daily allowances.
+# Keyed operations run only when the REPLYNODES_API_KEY repository secret is set.
+
+name: E2E in n8n
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      N8N_VERSION: '2.44.1'
+      N8N_DIAGNOSTICS_ENABLED: 'false'
+      N8N_VERSION_NOTIFICATIONS_ENABLED: 'false'
+      N8N_TEMPLATES_ENABLED: 'false'
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: 'true'
+      N8N_LOG_OUTPUT: 'file'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install and build the node
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install n8n
+        run: npm install -g "n8n@${N8N_VERSION}" --no-fund --no-audit
+
+      - name: Load the node into n8n the way n8n-node dev does
+        run: |
+          echo "N8N_USER_FOLDER=$RUNNER_TEMP/n8n-home" >> "$GITHUB_ENV"
+          echo "N8N_LOG_FILE_LOCATION=$RUNNER_TEMP/n8n.log" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/n8n-home/.n8n/custom/node_modules/@replynodes"
+          ln -s "$GITHUB_WORKSPACE" "$RUNNER_TEMP/n8n-home/.n8n/custom/node_modules/@replynodes/n8n-nodes-replynodes"
+
+      - name: Start n8n and check the node, its AI tool variant, and recipe node versions
+        run: |
+          n8n start > "$RUNNER_TEMP/start.log" 2>&1 &
+          for i in $(seq 1 90); do
+            curl -sf http://localhost:5678/healthz/readiness > /dev/null && break
+            sleep 2
+          done
+          types=""
+          for i in $(seq 1 30); do
+            types="$(find "$RUNNER_TEMP/n8n-home" "$HOME/.cache" -path '*types/nodes.json' 2>/dev/null | head -1)"
+            [ -n "$types" ] && break
+            sleep 2
+          done
+          if [ -z "$types" ]; then tail -50 "$RUNNER_TEMP/start.log"; exit 1; fi
+          node scripts/e2e-check.mjs types "$types" recipes/*.json tests/e2e/*.json
+          kill %1 || true
+          sleep 3
+
+      - name: Free operations without a credential
+        run: |
+          n8n import:workflow --input=tests/e2e/free.workflow.json
+          n8n execute --id e2eFreeOps00001 --rawOutput > "$RUNNER_TEMP/free.out"
+          node scripts/e2e-check.mjs free "$RUNNER_TEMP/free.out"
+
+      - name: Import every recipe
+        run: |
+          for file in recipes/*.json; do
+            n8n import:workflow --input="$file"
+          done
+
+      - name: Run the recipes that need no key or chat model
+        run: |
+          for pair in url-to-markdown:rnRecipeMd00001 brand-lookup:rnRecipeBrand01 competitor-research:rnRecipeComp001; do
+            name="${pair%%:*}"; id="${pair##*:}"
+            n8n execute --id "$id" --rawOutput > "$RUNNER_TEMP/$name.out"
+            node scripts/e2e-check.mjs recipe "$name" "$RUNNER_TEMP/$name.out"
+          done
+
+      - name: Keyed operations with the test key
+        env:
+          REPLYNODES_API_KEY: ${{ secrets.REPLYNODES_API_KEY }}
+        run: |
+          if [ -z "$REPLYNODES_API_KEY" ]; then
+            echo "::notice::REPLYNODES_API_KEY secret not set; keyed operations skipped"
+            exit 0
+          fi
+          creds="$RUNNER_TEMP/creds.json"
+          node -e 'require("fs").writeFileSync(process.argv[1], JSON.stringify([{ id: "e2eReplyNodesKey", name: "ReplyNodes e2e", type: "replyNodesApi", data: { apiKey: process.env.REPLYNODES_API_KEY } }]), { mode: 0o600 })' "$creds"
+          n8n import:credentials --input="$creds"
+          rm -f "$creds"
+          n8n import:workflow --input=tests/e2e/keyed.workflow.json
+          n8n execute --id e2eKeyedOps0001 --rawOutput > "$RUNNER_TEMP/keyed.out"
+          node scripts/e2e-check.mjs keyed "$RUNNER_TEMP/keyed.out"
+
+      - name: Show n8n logs on failure
+        if: failure()
+        run: |
+          tail -100 "$RUNNER_TEMP/n8n.log" 2>/dev/null || true
+          for f in "$RUNNER_TEMP"/*.out; do echo "== $f"; head -c 4000 "$f"; echo; done

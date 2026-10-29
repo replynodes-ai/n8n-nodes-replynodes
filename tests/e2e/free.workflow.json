@@ -1,0 +1,174 @@
+{
+	"id": "e2eFreeOps00001",
+	"name": "e2e: free operations, no credential",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start",
+			"name": "Start",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "https://www.n8n.io/pricing"
+			},
+			"id": "e2eFreeOps00001-0",
+			"name": "Get Brand",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 0]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getLogoImage",
+				"domain": "n8n.io"
+			},
+			"id": "e2eFreeOps00001-1",
+			"name": "Get Logo Image",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 160]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "urlToMarkdown",
+				"url": "example.com",
+				"options": {
+					"format": "frontmatter"
+				}
+			},
+			"id": "e2eFreeOps00001-2",
+			"name": "URL to Markdown",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 320]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getLogoKit",
+				"domain": "n8n.io"
+			},
+			"id": "e2eFreeOps00001-3",
+			"name": "Get Logo Kit",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 480]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "search",
+				"text": "n8n community nodes",
+				"options": {
+					"limit": 3
+				}
+			},
+			"id": "e2eFreeOps00001-4",
+			"name": "Search",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 640]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "scrape",
+				"url": "https://example.com",
+				"options": {
+					"maxChars": 500
+				}
+			},
+			"id": "e2eFreeOps00001-5",
+			"name": "Scrape",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 800]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "crawlSite",
+				"url": "https://example.com"
+			},
+			"id": "e2eFreeOps00001-6",
+			"name": "Crawl Without Key",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 960],
+			"onError": "continueRegularOutput"
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "not a domain"
+			},
+			"id": "e2eFreeOps00001-7",
+			"name": "Invalid Domain",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 1120],
+			"onError": "continueRegularOutput"
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Get Brand",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Get Logo Image",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "URL to Markdown",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Get Logo Kit",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Search",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Scrape",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Crawl Without Key",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Invalid Domain",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

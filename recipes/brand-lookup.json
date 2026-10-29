@@ -1,0 +1,84 @@
+{
+	"id": "rnRecipeBrand01",
+	"name": "ReplyNodes: brand lookup",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start",
+			"name": "Start",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"jsCode": "return [\n  { json: { domain: 'n8n.io' } },\n  { json: { domain: 'replynodes.com' } },\n];"
+			},
+			"id": "domains",
+			"name": "Domains",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [220, 0]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "={{ $json.domain }}"
+			},
+			"id": "brand",
+			"name": "Get Brand",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [440, -100],
+			"onError": "continueRegularOutput"
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getLogoImage",
+				"domain": "={{ $json.domain }}"
+			},
+			"id": "logo",
+			"name": "Get Logo Image",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [440, 100],
+			"onError": "continueRegularOutput"
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Domains",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Domains": {
+			"main": [
+				[
+					{
+						"node": "Get Brand",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Get Logo Image",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

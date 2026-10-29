@@ -1,0 +1,65 @@
+{
+	"id": "rnRecipeMd00001",
+	"name": "ReplyNodes: URL to Markdown",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start",
+			"name": "Start",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"jsCode": "return [\n  { json: { url: 'https://docs.n8n.io/integrations/community-nodes/' } },\n  { json: { url: 'https://example.com' } },\n];"
+			},
+			"id": "pages",
+			"name": "Pages to Read",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [220, 0]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "urlToMarkdown",
+				"url": "={{ $json.url }}"
+			},
+			"id": "md",
+			"name": "URL to Markdown",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [440, 0]
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Pages to Read",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Pages to Read": {
+			"main": [
+				[
+					{
+						"node": "URL to Markdown",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><!-- PLACEHOLDER: replace with the official ReplyNodes logo --><rect width="64" height="64" rx="14" fill="#A2D98A"/><path d="M20 46V18h13a9 9 0 0 1 2 17.8L44 46h-7.5l-8-10H27v10zm7-16h6a3 3 0 0 0 0-6h-6z" fill="#1F2937"/></svg>
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="56" fill="#A2D98A"/>
+  <line x1="128" y1="128" x2="72" y2="72" stroke="#223835" stroke-width="10" stroke-linecap="round"/>
+  <line x1="128" y1="128" x2="184" y2="72" stroke="#223835" stroke-width="10" stroke-linecap="round"/>
+  <line x1="128" y1="128" x2="72" y2="184" stroke="#223835" stroke-width="10" stroke-linecap="round"/>
+  <line x1="128" y1="128" x2="184" y2="184" stroke="#223835" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="72" cy="72" r="20" fill="#223835"/>
+  <circle cx="184" cy="72" r="20" fill="#223835"/>
+  <circle cx="72" cy="184" r="20" fill="#223835"/>
+  <circle cx="184" cy="184" r="20" fill="#223835"/>
+  <circle cx="128" cy="128" r="36" fill="#223835"/>
+  <circle cx="128" cy="128" r="18" fill="#A2D98A"/>
+</svg>

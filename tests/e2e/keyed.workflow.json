@@ -1,0 +1,198 @@
+{
+	"id": "e2eKeyedOps0001",
+	"name": "e2e: keyed operations",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start",
+			"name": "Start",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getFonts",
+				"domainOrUrl": "n8n.io"
+			},
+			"id": "e2eKeyedOps0001-0",
+			"name": "Get Fonts",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 0],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getStyleguide",
+				"domainOrUrl": "n8n.io"
+			},
+			"id": "e2eKeyedOps0001-1",
+			"name": "Get Styleguide",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 160],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "searchBrands",
+				"query": "n8n",
+				"options": {
+					"limit": 3
+				}
+			},
+			"id": "e2eKeyedOps0001-2",
+			"name": "Search Brands",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 320],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "mapSite",
+				"url": "https://example.com"
+			},
+			"id": "e2eKeyedOps0001-3",
+			"name": "Map Site",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 480],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "crawlSite",
+				"url": "https://example.com",
+				"options": {
+					"maxPages": 2,
+					"maxDepth": 1
+				}
+			},
+			"id": "e2eKeyedOps0001-4",
+			"name": "Crawl Site",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 640],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "search",
+				"text": "n8n",
+				"options": {
+					"limit": 2
+				}
+			},
+			"id": "e2eKeyedOps0001-5",
+			"name": "Search With Key",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 800],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "n8n.io"
+			},
+			"id": "e2eKeyedOps0001-6",
+			"name": "Get Brand With Key Set",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [320, 960],
+			"credentials": {
+				"replyNodesApi": {
+					"id": "e2eReplyNodesKey",
+					"name": "ReplyNodes e2e"
+				}
+			}
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Get Fonts",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Get Styleguide",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Search Brands",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Map Site",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Crawl Site",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Search With Key",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Get Brand With Key Set",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

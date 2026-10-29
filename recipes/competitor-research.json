@@ -1,0 +1,153 @@
+{
+	"id": "rnRecipeComp001",
+	"name": "ReplyNodes: competitor research",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start",
+			"name": "Start",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"jsCode": "return [{ json: { query: 'n8n alternatives workflow automation' } }];"
+			},
+			"id": "topic",
+			"name": "Topic",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [220, 0]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "search",
+				"text": "={{ $json.query }}",
+				"options": {
+					"limit": 5
+				}
+			},
+			"id": "search",
+			"name": "Search",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [440, 0]
+		},
+		{
+			"parameters": {
+				"fieldToSplitOut": "data.data",
+				"options": {}
+			},
+			"id": "split",
+			"name": "One Item per Result",
+			"type": "n8n-nodes-base.splitOut",
+			"typeVersion": 1,
+			"position": [660, 0]
+		},
+		{
+			"parameters": {
+				"maxItems": 3
+			},
+			"id": "limit",
+			"name": "Top 3",
+			"type": "n8n-nodes-base.limit",
+			"typeVersion": 1,
+			"position": [880, 0]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "={{ $json.url }}"
+			},
+			"id": "brand",
+			"name": "Get Brand",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [1100, -100],
+			"onError": "continueRegularOutput"
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "urlToMarkdown",
+				"url": "={{ $json.url }}"
+			},
+			"id": "md",
+			"name": "Read Page",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodes",
+			"typeVersion": 1,
+			"position": [1100, 100],
+			"onError": "continueRegularOutput"
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Topic",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Topic": {
+			"main": [
+				[
+					{
+						"node": "Search",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Search": {
+			"main": [
+				[
+					{
+						"node": "One Item per Result",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"One Item per Result": {
+			"main": [
+				[
+					{
+						"node": "Top 3",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Top 3": {
+			"main": [
+				[
+					{
+						"node": "Get Brand",
+						"type": "main",
+						"index": 0
+					},
+					{
+						"node": "Read Page",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

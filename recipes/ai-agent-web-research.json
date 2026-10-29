@@ -1,0 +1,140 @@
+{
+	"id": "rnRecipeAgent01",
+	"name": "ReplyNodes: AI agent with web tools",
+	"nodes": [
+		{
+			"parameters": {
+				"options": {}
+			},
+			"id": "chat",
+			"name": "When Chat Message Received",
+			"type": "@n8n/n8n-nodes-langchain.chatTrigger",
+			"typeVersion": 1.1,
+			"position": [0, 0],
+			"webhookId": "replynodes-recipe-agent"
+		},
+		{
+			"parameters": {
+				"options": {
+					"systemMessage": "You research companies and web pages. Use Read Web Page to read a URL, Search the Web to find pages, and Get Brand Data for a company domain. Cite the URLs you used."
+				}
+			},
+			"id": "agent",
+			"name": "AI Agent",
+			"type": "@n8n/n8n-nodes-langchain.agent",
+			"typeVersion": 2,
+			"position": [260, 0]
+		},
+		{
+			"parameters": {
+				"options": {}
+			},
+			"id": "model",
+			"name": "OpenAI Chat Model",
+			"type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+			"typeVersion": 1.2,
+			"position": [120, 220]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "urlToMarkdown",
+				"url": "={{ $fromAI('url', 'Full URL of the public web page to read', 'string') }}"
+			},
+			"id": "t-md",
+			"name": "Read Web Page",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodesTool",
+			"typeVersion": 1,
+			"position": [300, 220]
+		},
+		{
+			"parameters": {
+				"resource": "web",
+				"operation": "search",
+				"text": "={{ $fromAI('query', 'What to search the web for', 'string') }}",
+				"options": {
+					"limit": 5
+				}
+			},
+			"id": "t-search",
+			"name": "Search the Web",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodesTool",
+			"typeVersion": 1,
+			"position": [460, 220]
+		},
+		{
+			"parameters": {
+				"resource": "brand",
+				"operation": "getBrand",
+				"domain": "={{ $fromAI('domain', 'Company domain such as stripe.com', 'string') }}"
+			},
+			"id": "t-brand",
+			"name": "Get Brand Data",
+			"type": "@replynodes/n8n-nodes-replynodes.replyNodesTool",
+			"typeVersion": 1,
+			"position": [620, 220]
+		}
+	],
+	"connections": {
+		"When Chat Message Received": {
+			"main": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"OpenAI Chat Model": {
+			"ai_languageModel": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_languageModel",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Read Web Page": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Search the Web": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Get Brand Data": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"pinData": {}
+}

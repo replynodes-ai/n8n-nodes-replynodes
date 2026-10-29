@@ -27,6 +27,11 @@ npm run smoke           # calls the three free endpoints once each; manual only,
 npm run check           # everything CI runs before publishing
 ```
 
+End-to-end tests run inside a real n8n instance on a GitHub runner: Actions > "E2E in n8n" > Run
+workflow (`.github/workflows/e2e.yml`). It runs `tests/e2e/*.workflow.json` and the recipes, checked by
+`scripts/e2e-check.mjs`. Keyed operations run only if the `REPLYNODES_API_KEY` repository secret is set.
+Don't run n8n on the production server.
+
 ## Rules
 
 - Node code must not read environment variables or files, and must not add runtime dependencies.

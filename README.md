@@ -52,6 +52,8 @@ Domain fields accept either `stripe.com` or a full URL like `https://stripe.com/
 
 Copy a workflow below and paste it into an empty n8n canvas (Ctrl+V or Cmd+V).
 
+More complete workflows are in [`recipes/`](recipes/): URL to Markdown, brand lookup, competitor research, and an AI agent with ReplyNodes tools. Import one with **Workflows > Import from File**.
+
 ### 1. Read a web page as Markdown
 
 Manual Trigger, then URL to Markdown. The output has `url` and `markdown` fields, ready to pass to an LLM node.
