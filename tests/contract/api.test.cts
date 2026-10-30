@@ -19,6 +19,7 @@ interface Parameter {
 	name?: string;
 	in?: string;
 	required?: boolean;
+	schema?: { enum?: unknown[]; minimum?: number; maximum?: number };
 }
 
 interface SpecOperation {
@@ -80,6 +81,32 @@ test('every operation matches the live ReplyNodes API definition', async () => {
 				assert.ok(
 					documented.has(`${field.sendAs.in}:${key.toLowerCase()}`),
 					`${label}: ${field.sendAs.in} parameter "${key}" is not documented`,
+				);
+			}
+
+			const schema = parameters.find(
+				(p) => p.in === field.sendAs.in && p.name?.toLowerCase() === field.sendAs.key.toLowerCase(),
+			)?.schema;
+			const choices = (field.options ?? []).map((o) => o.value).filter((v) => v !== '');
+			if (schema?.enum && choices.length > 0) {
+				for (const choice of choices) {
+					assert.ok(
+						schema.enum.includes(choice),
+						`${label}: "${field.name}" offers "${choice}", which the API does not accept (${schema.enum.join(', ')})`,
+					);
+				}
+			}
+			const { minValue, maxValue } = field.typeOptions ?? {};
+			if (schema?.maximum !== undefined && maxValue !== undefined) {
+				assert.ok(
+					maxValue <= schema.maximum,
+					`${label}: "${field.name}" allows ${maxValue}, above the API maximum ${schema.maximum}`,
+				);
+			}
+			if (schema?.minimum !== undefined && minValue !== undefined) {
+				assert.ok(
+					minValue >= schema.minimum,
+					`${label}: "${field.name}" allows ${minValue}, below the API minimum ${schema.minimum}`,
 				);
 			}
 		}

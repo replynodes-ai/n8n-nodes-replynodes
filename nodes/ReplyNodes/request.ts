@@ -41,7 +41,7 @@ export function resolveFieldValues(
 	const input = emptyInput();
 	for (const field of operation.fields ?? []) {
 		const raw = values[field.name];
-		if (raw === undefined || raw === null || raw === '') {
+		if (raw === undefined || raw === null || (typeof raw === 'string' && raw.trim() === '')) {
 			if (field.required) {
 				throw new NodeOperationError(node, `${field.displayName} is required`);
 			}

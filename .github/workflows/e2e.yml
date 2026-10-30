@@ -10,7 +10,7 @@ on:
       skip_search:
         description: 'Skip the Search operation (and the recipe that uses it)'
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read

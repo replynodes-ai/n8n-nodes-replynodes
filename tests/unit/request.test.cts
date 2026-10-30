@@ -89,10 +89,31 @@ test('markdown options travel as headers', () => {
 	assert.equal('X-Exclude-Selectors' in headers, false);
 });
 
+test('search sends the API parameter names and keeps its filters', () => {
+	const request = build('web', 'search', {
+		text: 'n8n community nodes',
+		limit: 3,
+		page: 2,
+		language: 'en-GB',
+		timeRange: 'week',
+		engines: 'brave,bing',
+	});
+	assert.deepEqual(request.qs, {
+		q: 'n8n community nodes',
+		limit: 3,
+		page: 2,
+		language: 'en-GB',
+		time_range: 'week',
+		engines: 'brave,bing',
+	});
+	assert.equal('text' in (request.qs ?? {}), false);
+	assert.throws(() => build('web', 'search', { text: '   ' }), /./);
+});
+
 test('query parameters are mapped to API names and empty values are dropped', () => {
-	const request = build('web', 'search', { text: ' n8n ', limit: 5, site: '', start: 0 });
+	const request = build('web', 'search', { text: ' n8n ', limit: 5, timeRange: '', page: 1 });
 	assert.equal(request.url, '/v1/web/search');
-	assert.deepEqual(request.qs, { text: 'n8n', limit: 5, start: 0 });
+	assert.deepEqual(request.qs, { q: 'n8n', limit: 5, page: 1 });
 
 	const crawl = build('web', 'crawlSite', { url: 'example.com', maxPages: 20, maxDepth: 2 });
 	assert.deepEqual(crawl.qs, { url: 'https://example.com/', max_pages: 20, max_depth: 2 });

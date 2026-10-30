@@ -86,7 +86,7 @@ test('typed fields: required ones on the node, optional ones under Options', () 
 		['text', 'options'],
 	);
 	const optionNames = (search[1].options ?? []).map((o) => (o as INodeProperties).name);
-	assert.ok(optionNames.includes('limit') && optionNames.includes('site'));
+	assert.deepEqual(optionNames, ['engines', 'language', 'limit', 'page', 'timeRange']);
 
 	const crawl = properties.filter((p) => shownFor(p, 'crawlSite'));
 	assert.equal(crawl[0].type, 'notice');
