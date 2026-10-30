@@ -110,6 +110,11 @@ test('search sends the API parameter names and keeps its filters', () => {
 	assert.throws(() => build('web', 'search', { text: '   ' }), /./);
 });
 
+test('search brands sends Max Results as the API limit parameter', () => {
+	const request = build('brand', 'searchBrands', { query: 'stripe', maxResults: 5 });
+	assert.deepEqual(request.qs, { query: 'stripe', limit: 5 });
+});
+
 test('query parameters are mapped to API names and empty values are dropped', () => {
 	const request = build('web', 'search', { text: ' n8n ', limit: 5, timeRange: '', page: 1 });
 	assert.equal(request.url, '/v1/web/search');

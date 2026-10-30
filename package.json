@@ -1,6 +1,6 @@
 {
 	"name": "@replynodes/n8n-nodes-replynodes",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "n8n node for ReplyNodes: turn any URL into Markdown, get brand data and logos from a domain, and search, scrape, map, or crawl the web. Free operations need no API key.",
 	"license": "MIT",
 	"homepage": "https://github.com/replynodes-ai/n8n-nodes-replynodes#readme",

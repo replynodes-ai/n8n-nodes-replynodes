@@ -216,10 +216,9 @@ export const operations: OperationDefinition[] = [
 				sendAs: { in: 'query', key: 'query' },
 			},
 			{
-				displayName: 'Limit',
-				name: 'limit',
+				displayName: 'Max Results',
+				name: 'maxResults',
 				type: 'number',
-				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-limit -- the API caps brand search at 10 results
 				default: 10,
 				typeOptions: { minValue: 1, maxValue: 10 },
 				description: 'Max number of results to return',
@@ -305,8 +304,7 @@ export const operations: OperationDefinition[] = [
 				displayName: 'Limit',
 				name: 'limit',
 				type: 'number',
-				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-limit -- the API returns at most 50 results
-				default: 10,
+				default: 50,
 				typeOptions: { minValue: 1, maxValue: 50 },
 				description: 'Max number of results to return',
 				sendAs: { in: 'query', key: 'limit' },
