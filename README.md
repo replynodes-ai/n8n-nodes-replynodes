@@ -22,7 +22,7 @@ You don't need a credential for the free operations. Leave the credential field 
 
 For the other operations, or for higher daily limits:
 
-1. [Create a free ReplyNodes account](https://platform.replynodes.com/sign-up?utm_source=n8n&utm_medium=integration&utm_campaign=n8n-readme). A free credit grant comes with your first API key.
+1. [Create a free ReplyNodes account](https://platform.replynodes.com/sign-up?utm_source=n8n&utm_medium=integration&utm_campaign=n8n-readme).
 2. Copy an API key from [your API keys page](https://platform.replynodes.com/api-keys?utm_source=n8n&utm_medium=integration&utm_campaign=n8n-readme).
 3. In n8n, open the ReplyNodes node, choose **Create new credential**, and paste the key.
 
@@ -32,8 +32,8 @@ The key is only sent to `api.replynodes.com`. n8n tests it against a status endp
 
 | Resource | Operation | What you get | API key |
 | --- | --- | --- | --- |
-| Web | URL to Markdown | The main content of a page as clean Markdown | Not needed (100 free calls a day) |
-| Brand | Get Brand | Name, description, logos, colors, fonts, and social links for a domain | Not needed (20 free calls a day) |
+| Web | URL to Markdown | The main content of a page as clean Markdown | Not needed (free daily allowance) |
+| Brand | Get Brand | Name, description, logos, colors, fonts, and social links for a domain | Not needed (free daily allowance) |
 | Brand | Get Logo Image | The logo as an image file (n8n binary data) | Not needed |
 | Brand | Get Logo Kit | Logo, favicon, and social image URLs as JSON | Optional (free daily allowance without one) |
 | Web | Search | Ranked web results with title, URL, and snippet | Optional (free daily allowance without one) |
