@@ -1,0 +1,35 @@
+# Runs n8n's community package scanner against a version published on npm.
+# Manual only. Usage: Actions > "Scan published package" > Run workflow.
+
+name: Scan published package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Published version to scan (default: the version in package.json)'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Scan the package
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          version="${INPUT_VERSION:-$(node -p "require('./package.json').version")}"
+          npx --yes @n8n/scan-community-package "@replynodes/n8n-nodes-replynodes@${version}"
